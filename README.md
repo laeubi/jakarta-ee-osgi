@@ -9,7 +9,7 @@ The [maven-example](maven-example) consists of two modules:
 - `runner` resolves and runs the bundle together with the JAXB implementation (`com.sun.xml.bind:jaxb-impl` and `jaxb-core`, they embed `txw2` and `istack` and therefore need fewer dependencies than `org.glassfish.jaxb:jaxb-runtime`) on Apache Felix using a [bndrun](maven-example/runner/example.bndrun).
 
 Run it with `mvn clean verify` inside `maven-example`.
-All bundles resolve and start without any complaint, but the activator fails with:
+Without the `org.glassfish.hk2.osgi-resource-locator` bundle in the [bndrun](maven-example/runner/example.bndrun) (the naive setup) all bundles resolve and start without any complaint, but the activator fails with:
 
 ```
 jakarta.xml.bind.JAXBException: Implementation of Jakarta XML Binding-API has not been found on module path or classpath.
@@ -31,3 +31,18 @@ Reading the sources of `jakarta.xml.bind-api` (`ContextFinder` and `ServiceLoade
    The API bundle does not import `org.glassfish.jaxb.runtime.v2` (it can't, it has no dependency on the implementation), so this fails with the error above.
 
 As the API only uses reflection and the API bundle has no way to declare a dependency on its provider, the OSGi resolver can not help here and every step fails silently.
+
+## The fix: org.glassfish.hk2.osgi-resource-locator
+
+Adding `org.glassfish.hk2:osgi-resource-locator` (a bundle without further dependencies) to the runtime makes the example print the modified XML.
+Its `Activator` tracks all installed bundles and indexes their `META-INF/services` entries.
+`ServiceLoaderUtil` in the API finds the class `org.glassfish.hk2.osgiresourcelocator.ServiceLoader` through its `DynamicImport-Package` header and asks it for the `JAXBContextFactory` providers, which the locator loads through the class loader of the implementation bundle.
+That is the missing link: it lets the API reach the implementation although it neither imports nor sees it.
+
+Things to watch out for:
+
+- The locator must be active **before** anything calls `JAXBContext`.
+  Until then `ServiceLoader.lookupProviderClasses` returns `null` and you get a `NullPointerException` inside the API instead of the error above.
+  In the example the application calls JAXB directly in its activator, so `app-bundle` imports the package `org.glassfish.hk2.osgiresourcelocator` (see its [bnd.bnd](maven-example/app-bundle/bnd.bnd)).
+  The code never uses it, but it makes the resolver add the locator to the runtime and start it before the application (`-runstartlevel: order=leastdependenciesfirst`).
+- The implementation (`jaxb-impl`) still has to be part of the runtime, the locator only finds what is installed.

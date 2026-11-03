@@ -1,2 +1,5 @@
 Bundle-Activator: example.Activator
+Bundle-SymbolicName: app-bundle
+# makes the locator a dependency, so it is resolved and started before this bundle
+Import-Package: org.glassfish.hk2.osgiresourcelocator, *
 -includeresource: person.xml=person.xml

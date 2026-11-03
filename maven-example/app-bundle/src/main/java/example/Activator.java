@@ -16,6 +16,7 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		int exitCode = 0;
 		try {
 			URL url = context.getBundle().getEntry("person.xml");
 			JAXBContext jaxb = JAXBContext.newInstance(Person.class);
@@ -30,15 +31,10 @@ public class Activator implements BundleActivator {
 		} catch (Throwable t) {
 			System.out.println("FAILURE:");
 			t.printStackTrace(System.out);
-		} finally {
-			// end the run, this is only a demo
-			new Thread(() -> {
-				try {
-					context.getBundle(0).stop();
-				} catch (Exception e) {
-				}
-			}).start();
+			exitCode = 1;
 		}
+		// end the run, this is only a demo
+		System.exit(exitCode);
 	}
 
 	@Override
