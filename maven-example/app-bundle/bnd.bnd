@@ -1,0 +1,2 @@
+Bundle-Activator: example.Activator
+-includeresource: person.xml=person.xml

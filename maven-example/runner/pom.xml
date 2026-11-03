@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>io.github.laeubi.jakartaee.osgi</groupId>
+		<artifactId>maven-example</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>runner</artifactId>
+	<packaging>jar</packaging>
+
+	<!-- the dependencies are the repository bnd resolves the bndrun against -->
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>app-bundle</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>7.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>${jaxb.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>${jaxb.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-resolver-maven-plugin</artifactId>
+				<version>${bnd.version}</version>
+				<configuration>
+					<failOnChanges>false</failOnChanges>
+					<writeOnChanges>true</writeOnChanges>
+					<bndruns>
+						<bndrun>example.bndrun</bndrun>
+					</bndruns>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>resolve</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-run-maven-plugin</artifactId>
+				<version>${bnd.version}</version>
+				<configuration>
+					<bndrun>example.bndrun</bndrun>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
