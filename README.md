@@ -59,3 +59,17 @@ Build with `mvn clean package` inside `eclipse-example` and start the result or 
 ```
 
 Also here the start order matters: Equinox does not start bundles in dependency order, so the [product](eclipse-example/product/example.product) starts `org.glassfish.hk2.osgi-resource-locator` explicitly at start level 2, before the application at level 4.
+
+## Background and outlook
+
+OSGi already offers a solution for this problem: the [Service Loader Mediator Specification](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.loader.html).
+Bundles declare the services they provide and consume with the `osgi.serviceloader` capability and the `osgi.extender` requirement (the `jaxb-impl` manifest even contains them: `Provide-Capability: osgi.serviceloader`), and a mediator makes `java.util.ServiceLoader` work across bundles.
+Unfortunately it was never generally adopted, especially not by Jakarta EE, which relies on its own hand-rolled lookup (for example the reflective call into `org.glassfish.hk2.osgiresourcelocator.ServiceLoader` shown above).
+As a result users have to know about the resource locator workaround.
+
+To improve the situation there is an initiative to bring SPI support into the OSGi core framework:
+
+- [osgi/osgi#924](https://github.com/osgi/osgi/pull/924) is the pull request with the specification proposal.
+- [osgi/osgi#372](https://github.com/osgi/osgi/issues/372) is the issue it originates from.
+
+It is currently in the specification phase, so feedback is very welcome.
