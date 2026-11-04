@@ -56,7 +56,6 @@ The [eclipse-example](eclipse-example) does the same with Eclipse Tycho 5.0.4 (r
 - `product` is an `eclipse-repository` that materializes a runnable product.
 
 Build with `mvn clean package` inside `eclipse-example` and start the result or directly run from the IDE after setting the target platform.
-```
 
 Also here the start order matters: Equinox does not start bundles in dependency order, so the [product](eclipse-example/product/example.product) starts `org.glassfish.hk2.osgi-resource-locator` explicitly at start level 2, before the application at level 4.
 
