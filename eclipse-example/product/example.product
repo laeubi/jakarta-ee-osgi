@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="JAXB Example" uid="example.product" version="1.0.0.qualifier" type="bundles" includeLaunchers="false" autoIncludeRequirements="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Declipse.ignoreApp=true
+-Dosgi.noShutdown=true
+      </vmArgs>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="com.sun.xml.bind.jaxb-core"/>
+      <plugin id="com.sun.xml.bind.jaxb-impl"/>
+      <plugin id="example.app"/>
+      <plugin id="jakarta.xml.bind-api"/>
+      <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.glassfish.hk2.osgi-resource-locator"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="example.app" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.glassfish.hk2.osgi-resource-locator" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

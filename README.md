@@ -46,3 +46,16 @@ Things to watch out for:
   In the example the application calls JAXB directly in its activator, so `app-bundle` imports the package `org.glassfish.hk2.osgiresourcelocator` (see its [bnd.bnd](maven-example/app-bundle/bnd.bnd)).
   The code never uses it, but it makes the resolver add the locator to the runtime and start it before the application (`-runstartlevel: order=leastdependenciesfirst`).
 - The implementation (`jaxb-impl`) still has to be part of the runtime, the locator only finds what is installed.
+
+## Eclipse / Tycho example
+
+The [eclipse-example](eclipse-example) does the same with Eclipse Tycho 5.0.4 (requires Java 21, as the Eclipse 2026-09 release does):
+
+- `target-platform` is a target definition with the Eclipse 2026-09 release repository (only the OSGi framework, launcher and simpleconfigurator) and the JAXB bundles and the resource locator as Maven target location.
+- `app` is the same application as above, as a manifest-first Tycho plug-in.
+- `product` is an `eclipse-repository` that materializes a runnable product.
+
+Build with `mvn clean package` inside `eclipse-example` and start the result or directly run from the IDE after setting the target platform.
+```
+
+Also here the start order matters: Equinox does not start bundles in dependency order, so the [product](eclipse-example/product/example.product) starts `org.glassfish.hk2.osgi-resource-locator` explicitly at start level 2, before the application at level 4.
