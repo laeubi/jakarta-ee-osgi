@@ -1,0 +1,3 @@
+Bundle-Activator: example.Activator
+Bundle-SymbolicName: app-bundle
+-includeresource: person.xml=person.xml

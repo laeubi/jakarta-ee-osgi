@@ -60,14 +60,37 @@ Build with `mvn clean package` inside `eclipse-example` and start the result or 
 
 Also here the start order matters: Equinox does not start bundles in dependency order, so the [product](eclipse-example/product/example.product) starts `org.glassfish.hk2.osgi-resource-locator` explicitly at start level 2, before the application at level 4.
 
+## Alternative: Service Loader Mediator
+
+OSGi already offers a standard solution for this problem: the [Service Loader Mediator Specification](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.loader.html).
+Bundles declare the services they provide and consume with the `osgi.serviceloader` capability and the `osgi.extender` requirement, and a mediator makes `java.util.ServiceLoader` work across bundles.
+
+The [maven-example-spifly](maven-example-spifly) is a copy of the Maven example that uses [Apache Aries SPI Fly](https://aries.apache.org/documentation/modules/spi-fly.html) (`org.apache.aries.spifly.dynamic.bundle`) instead of the resource locator.
+Nothing else changes, in particular the application has no extra import, and it prints the modified XML as well.
+
+This works because `jakarta.xml.bind-api` declares an optional `Require-Capability` for `osgi.extender=osgi.serviceloader.processor` and for `osgi.serviceloader` of `jakarta.xml.bind.JAXBContextFactory`, and `jaxb-impl` declares the matching `Provide-Capability`.
+SPI Fly picks this up and makes `ServiceLoader.load` find the implementation.
+As with the locator, the mediator bundle must be active before the API bundle starts.
+Aries SPI Fly is only used here as an example of a mediator implementation.
+Equinox will get its own implementation ([eclipse-equinox/equinox#295](https://github.com/eclipse-equinox/equinox/pull/295)), which will be available from the Eclipse 2026-12 release.
+
+**Check before relying on it:** this only works if the Jakarta EE API and the implementation in the versions you use actually contain these headers.
+For Jakarta XML Binding they were added only recently (checked against the manifests on Maven Central):
+
+| Artifact                                                                   | First version with the headers |
+|----------------------------------------------------------------------------|--------------------------------|
+| `jakarta.xml.bind:jakarta.xml.bind-api`                                    | 4.0.1                          |
+| `com.sun.xml.bind:jaxb-impl` and `org.glassfish.jaxb:jaxb-runtime`         | 4.0.4                          |
+
+Older versions (including all 2.3.x and 3.0.x) have none, so the mediator can not help there and the resource locator is needed.
+Do not assume that other specifications behave the same way: inspect the `MANIFEST.MF` of the API and the implementation for `osgi.serviceloader` and `osgi.extender`.
+
 ## Background and outlook
 
-OSGi already offers a solution for this problem: the [Service Loader Mediator Specification](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.loader.html).
-Bundles declare the services they provide and consume with the `osgi.serviceloader` capability and the `osgi.extender` requirement (the `jaxb-impl` manifest even contains them: `Provide-Capability: osgi.serviceloader`), and a mediator makes `java.util.ServiceLoader` work across bundles.
-Unfortunately it was never generally adopted, especially not by Jakarta EE, which relies on its own hand-rolled lookup (for example the reflective call into `org.glassfish.hk2.osgiresourcelocator.ServiceLoader` shown above).
-As a result users have to know about the resource locator workaround.
+The Service Loader Mediator is not generally adopted, and it requires the cooperation of every API and provider: each one has to ship the correct headers, and many Jakarta EE APIs still contain their own hand-rolled lookup (for example the reflective call into `org.glassfish.hk2.osgiresourcelocator.ServiceLoader` shown above).
+As a result users often have to know about workarounds like the resource locator.
 
-To improve the situation there is an initiative to bring SPI support into the OSGi core framework:
+To improve the situation there is an initiative to bring SPI support into the OSGi core framework, so that it works without modifying the providers and consumers:
 
 - [osgi/osgi#924](https://github.com/osgi/osgi/pull/924) is the pull request with the specification proposal.
 - [osgi/osgi#372](https://github.com/osgi/osgi/issues/372) is the issue it originates from.
