@@ -76,6 +76,8 @@ Note that SPI Fly only registers providers of bundles that are **started**, and 
 Therefore the [product](eclipse-example-spifly/product/example.product) starts `jaxb-impl` explicitly (start level 3), after SPI Fly (level 2) and before the application (level 4).
 Aries SPI Fly is only used here as an example of a mediator implementation.
 Equinox will get its own implementation ([eclipse-equinox/equinox#295](https://github.com/eclipse-equinox/equinox/pull/295)), which will be available from the Eclipse 2026-12 release.
+A preview is already available in the Eclipse milestone repository (`https://download.eclipse.org/releases/milestone/`): [eclipse-example-equinox-spi](eclipse-example-equinox-spi) is a copy of the Tycho example that uses the framework extension `org.eclipse.equinox.spi` from there instead of SPI Fly.
+Neither an additional mediator bundle nor explicitly starting `jaxb-impl` is needed, the example just works, but as the milestone repository is a moving target this is a preview only.
 
 **Check before relying on it:** this only works if the Jakarta EE API and the implementation in the versions you use actually contain these headers.
 For Jakarta XML Binding they were added only recently (checked against the manifests on Maven Central):
