@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EE App
+Bundle-SymbolicName: example.app
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: example.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Import-Package: jakarta.xml.bind,
+ jakarta.xml.bind.annotation,
+ org.osgi.framework
+Automatic-Module-Name: app

@@ -71,6 +71,9 @@ Nothing else changes, in particular the application has no extra import, and it 
 This works because `jakarta.xml.bind-api` declares an optional `Require-Capability` for `osgi.extender=osgi.serviceloader.processor` and for `osgi.serviceloader` of `jakarta.xml.bind.JAXBContextFactory`, and `jaxb-impl` declares the matching `Provide-Capability`.
 SPI Fly picks this up and makes `ServiceLoader.load` find the implementation.
 As with the locator, the mediator bundle must be active before the API bundle starts.
+The same is available for Eclipse/Tycho as [eclipse-example-spifly](eclipse-example-spifly), a copy of the [eclipse-example](eclipse-example) with SPI Fly (and its ASM bundles) in the Maven target location instead of the locator.
+Note that SPI Fly only registers providers of bundles that are **started**, and Equinox does not start bundles that are merely resolved.
+Therefore the [product](eclipse-example-spifly/product/example.product) starts `jaxb-impl` explicitly (start level 3), after SPI Fly (level 2) and before the application (level 4).
 Aries SPI Fly is only used here as an example of a mediator implementation.
 Equinox will get its own implementation ([eclipse-equinox/equinox#295](https://github.com/eclipse-equinox/equinox/pull/295)), which will be available from the Eclipse 2026-12 release.
 
